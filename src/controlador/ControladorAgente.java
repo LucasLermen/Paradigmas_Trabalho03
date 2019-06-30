@@ -70,10 +70,19 @@ public class ControladorAgente extends Agent {
 				reply.setPerformative(ACLMessage.INFORM);
 				reply.setContent(msg.getSender().getLocalName()+ " Pista 11L liberada. Procedimento de pouso autorizado." +
 						"\n"+ getLocalName() +": Boa sorte " + msg.getSender().getLocalName()+".");
+				tempoResposta(3000);
 				myAgent.send(reply);
 			}else 	
 				block();
 		}
 	});
+	}
+	
+	public void tempoResposta(int t) {
+		try {
+			Thread.sleep(t);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 }

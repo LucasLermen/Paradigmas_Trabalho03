@@ -88,6 +88,7 @@ public class AeronaveComportamento extends CyclicBehaviour{
 				System.out.println(myAgent.getLocalName()+ ": " + "enviando situação de voo a "+ nomeAgente);
 				msg.addReceiver(new AID(nomeAgente, AID.ISLOCALNAME));
 				msg.setContent(resp);
+				
 				myAgent.send(msg);
 				
 				}});
