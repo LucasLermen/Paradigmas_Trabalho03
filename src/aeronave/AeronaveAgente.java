@@ -22,7 +22,6 @@ public class AeronaveAgente extends Agent {
 
 	
 	public String getControlador() {
-		// TODO Auto-generated method stub
 		return controlador;
 	}
 
@@ -67,14 +66,14 @@ protected String buscaServico(String tipoServico) {
   				AID provider = dfd.getName();
   				
   				Iterator it = dfd.getAllServices();
-  			//	while (it.hasNext()) {
-  					ServiceDescription sd = (ServiceDescription) it.next();
-  					if (sd.getType().equals("Pouso_Comum")) {
-  					  System.out.println(getLocalName()+": "+provider.getLocalName() +" solicito vetores de navegação "
-  		  			  		+ "para aproximação e pouso");
-  						return  provider.getLocalName();
-  				}
-  			//}
+
+				ServiceDescription sd = (ServiceDescription) it.next();
+				if (sd.getType().equals("Pouso_Comum")) {
+				  System.out.println(getLocalName()+": "+provider.getLocalName() +" solicito vetores de navegação "
+	  			  		+ "para aproximação e pouso");
+				return  provider.getLocalName();
+			}
+
   		}}
   		else {
   			System.out.println(getLocalName()+" não encontrou nenhum controlador "
@@ -89,41 +88,63 @@ protected String buscaServico(String tipoServico) {
 	return " ";
 	}
 	
-
-
-public void SolicitarRegras(String nomeAgente){
-	addBehaviour(new OneShotBehaviour(this) {			
-		ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
-		DFAgentDescription sfd = new DFAgentDescription();
-		ServiceDescription svd = new ServiceDescription();
+	public void SolicitarRegras(String nomeAgente){
+		addBehaviour(new OneShotBehaviour(this) {			
+			ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
+			DFAgentDescription sfd = new DFAgentDescription();
+			ServiceDescription svd = new ServiceDescription();
+			
+			@Override
+			public void action() {
+				msg.addReceiver(new AID(nomeAgente, AID.ISLOCALNAME));
+				msg.setContent(getLocalName());
+				myAgent.send(msg);
+			}});
 		
-		@Override
-		public void action() {
-			msg.addReceiver(new AID(nomeAgente, AID.ISLOCALNAME));
-			msg.setContent(getLocalName());
-			myAgent.send(msg);
-		}});
-	
-	addBehaviour(new CyclicBehaviour(this){
-		@Override
-		public void action() {
+		addBehaviour(new OneShotBehaviour(this) {			
+			ACLMessage msgConfirmaPouso = new ACLMessage(ACLMessage.REQUEST);
+			DFAgentDescription sfd = new DFAgentDescription();
+			ServiceDescription svd = new ServiceDescription();
+			
+			@Override
+			public void action() {
+				msgConfirmaPouso.addReceiver(new AID(nomeAgente, AID.ISLOCALNAME));
+				msgConfirmaPouso.setContent(getLocalName());
+				myAgent.send(msgConfirmaPouso);
+			}});
+		
+		
+		addBehaviour(new CyclicBehaviour(this){
+			@Override
+			public void action() {
+			tempoResposta(5000);
+			ACLMessage msg = myAgent.receive();
+			ACLMessage msgConfirmaPouso = myAgent.receive();
+				if(msg != null) {
+					Aerodromo ardm = new Aerodromo();			
+					String content = msg.getContent();
+					System.out.println(msg.getSender().getLocalName()+": "+content);
+				tempoResposta(5000);
+				System.out.println(getLocalName()+ ": Afirmativo, Uno-Quatro-Zero a 240, pista 11L, "+getLocalName());
+				if (msgConfirmaPouso != null){
+					tempoResposta(5000);
+					String contentPouso = msgConfirmaPouso.getContent();
+					System.out.println(msgConfirmaPouso.getSender().getLocalName()+": "+contentPouso);
+					}
+				}else {
+					doDelete();	  
+				}
+			}
+		});	
+	}
+
+	public void tempoResposta(int t) {
 		try {
-			Thread.sleep(2000);
+			Thread.sleep(t);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		ACLMessage msg = myAgent.receive();	
-			if(msg != null) {
-				Aerodromo ardm = new Aerodromo();			
-				String content = msg.getContent();
-				System.out.println(msg.getSender().getLocalName()+": "+content);
-				
-			}else {
-				doDelete();	  
-			}
-		}
-	});	
-}
+	}
 
 // Put agent clean-up operations here
 	protected void takeDown() {

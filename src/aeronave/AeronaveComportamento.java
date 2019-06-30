@@ -3,7 +3,6 @@ package aeronave;
 
 import java.text.DecimalFormat;
 
-import ambiente.Aerodromo;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
@@ -42,27 +41,33 @@ public class AeronaveComportamento extends CyclicBehaviour{
 	//regula a velocidade para pouso
 	public void regularVelocidade(){
 		//aeronave em voo
+		tempoResposta(5000);
 		double autonomiaVoo = calculaAutonomia(autonomiaInicial, VELOCIDADE_VOO);
 		System.out.println("Info " + myAgent.getLocalName()+ ": " + "[ Velocidade "+VELOCIDADE_VOO+"km/h ] "
 						   + "[ Em voo ] Autonomia: [ "+df.format(autonomiaVoo)+"l ]");
 		//confirmarAproximacao(estado);
 
 		//aeronave reduzindo e se aproximando da cabeceira da pista
+		tempoResposta(5000);
 		double autonomiaAproximacao = calculaAutonomia(autonomiaVoo, VELOCIDADE_APROXIMACAO);
 		System.out.println("Info " + myAgent.getLocalName()+ ": " + "[ Velocidade "+VELOCIDADE_APROXIMACAO+"km/h ] " + "[ Aproximando da Cabeceira ] "
 				+ "Autonomia: [ "+df.format(autonomiaAproximacao)+"l ]");
 			
 		//aeronave pousando e reduzindo a velocidade
+		tempoResposta(5000);
 		double autonomiaPouso = calculaAutonomia(autonomiaAproximacao, VELOCIDADE_POUSO);
 		System.out.println("Info " + myAgent.getLocalName()+ ": " + "[ Velocidade "+VELOCIDADE_POUSO+"km/h ] " + "[ Tocando o solo ]"
 				+ " Autonomia: [ "+df.format(autonomiaPouso)+"l ]");
 
 		//aeronave iniciando o procedimento de taxiamento
+		tempoResposta(5000);
+
 		double autonomiaTaxi = calculaAutonomia(autonomiaPouso, VELOCIDADE_TAXI);
 		System.out.println("Info " + myAgent.getLocalName()+ ": " + " [ Velocidade "+VELOCIDADE_TAXI+"km/h ] "
 				+ "[ Taxiando na pista ] Autonomia: [ "+df.format(autonomiaTaxi)+"l ]");
 
 		//aeronave iniciando o procedimento de taxiamento
+		tempoResposta(5000);
 		System.out.println("Info " +myAgent.getLocalName()+ ": " + " [ Velocidade "+VELOCIDADE_ESTACIONAMENTO+"km/h ] " + " [ Estacionada ]");
 		
 	}
@@ -96,40 +101,16 @@ public class AeronaveComportamento extends CyclicBehaviour{
 			return resp;
 	}
 
-	//realiza a confirmacao da posicao de aproximacao
-	/*public void confirmarAproximacao(String str){
-		Aerodromo ardm = new Aerodromo();
-		AeronaveAgente agtAeronave = new AeronaveAgente();
-		SequentialBehaviour sqb = new SequentialBehaviour();
-		
-					if((deslocamento(velocidade(potencia))) >= ardm.get_diametro_aerovia() && (deslocamento(velocidade(potencia))) < ardm.get_diametro_aerovia()+100 ) {
-						System.out.println(myAgent.getLocalName()+" se aproximando do aerodromo");
-						System.out.println(str);
-					
-						SolicitarPouso("Controlador", "Status"+ str);
-												
-						
-						if( str.equalsIgnoreCase("Realizar_Pouso") == true){
-							System.out.println(myAgent.getLocalName()+" iniciando processo de pouso");
-							velocidade(-99);
-						}	
-						if( str.equalsIgnoreCase("Entre_na_fila") == true){
-							System.out.println(myAgent.getLocalName()+" entrando na fila");
-						}
-						if( str.equalsIgnoreCase("Reduza_a_velocidade") == true){
-							System.out.println(myAgent.getLocalName()+" entrando na fila");
-							velocidade(VELOCIDADE_MEDIA-20);
-						}
-					}}
-	*/
-
 	public void action() {
 			block(5000);
 			regularVelocidade();
-
+	}
+	
+	public void tempoResposta(int t) {
+		try {
+			Thread.sleep(t);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
-		
-
-	
-	
+	}
 }

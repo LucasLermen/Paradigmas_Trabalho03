@@ -15,12 +15,8 @@ public class ControladorAgente extends Agent {
 	
 	
 	protected void setup() {
-//	addBehaviour(new AerodromoEmpregoComportamento());
-		//registrarServico("Apoio_Pouso");
 		String serviceName = "Apoio_de_Pouso-";
-	  	
-	  	// Read the name of the service to register as an argument
-	  	Object[] args = getArguments();
+	   	Object[] args = getArguments();
 	  	if (args != null && args.length > 0) {
 	  		serviceName = (String) args[0];
 	  	}
@@ -47,33 +43,20 @@ public class ControladorAgente extends Agent {
 	
 	protected void RecebeMensagens(){
 			
-		addBehaviour(new OneShotBehaviour() {	
-		@Override
-		public void action() {
-		  	try {
-				//Ontology o = myAgent.getContentManager().lookupOntology(Emprego.REGRAS);	  
-			} catch (Exception e) {
-		     	e.printStackTrace();
-		    }}  } );	
-		
 		addBehaviour(new CyclicBehaviour(this){
 			@Override
 			public void action() {
 				ACLMessage msg = myAgent.receive();
 				if(msg != null) {
-					String content = msg.getContent();
 					ACLMessage reply = msg.createReply();
 					reply.setPerformative(ACLMessage.INFORM);
-					reply.setContent(msg.getSender().getLocalName()+ " desça para Uno-Quatro-Zero a 200 nós em direção a 11L." +
-									"\n"+ getLocalName() +": Seja bem vindo a Brasília " + msg.getSender().getLocalName()+".");
+					reply.setContent(msg.getSender().getLocalName()+ " descer para Uno-Quatro-Zero a 240 nós em direção a 11L." +
+									"\n"+ getLocalName() +": Seja bem vindo a Brasília, " + msg.getSender().getLocalName()+".");
 					myAgent.send(reply);
 				}else 	
 					block();
 			}//fim do action
-			}); //fim do addBehaviours
-		
-		
-
+		}); //fim do addBehaviours
 	}
 	
 	protected void gerirVoo(){
@@ -85,7 +68,8 @@ public class ControladorAgente extends Agent {
 			if(msg != null) {
 				ACLMessage reply = msg.createReply();
 				reply.setPerformative(ACLMessage.INFORM);
-				reply.setContent("Realizar_Pouso");
+				reply.setContent(msg.getSender().getLocalName()+ " Pista 11L liberada. Procedimento de pouso autorizado." +
+						"\n"+ getLocalName() +": Boa sorte " + msg.getSender().getLocalName()+".");
 				myAgent.send(reply);
 			}else 	
 				block();
