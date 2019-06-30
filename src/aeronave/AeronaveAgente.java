@@ -1,20 +1,10 @@
 package aeronave;
 
-
-import java.io.EOFException;
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.concurrent.CyclicBarrier;
-
 import ambiente.Aerodromo;
-import ambiente.SistemaAeroportuario;
 import jade.core.AID;
 import jade.core.Agent;
-import jade.core.Service;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.OneShotBehaviour;
-import jade.core.behaviours.SimpleBehaviour;
-import jade.core.behaviours.TickerBehaviour;
 import jade.domain.DFService;
 import jade.domain.FIPAException;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
@@ -22,10 +12,9 @@ import jade.domain.FIPAAgentManagement.SearchConstraints;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
-import jade.lang.acl.UnreadableException;
-import jade.proto.SubscriptionInitiator;
-import jade.tools.gui.ACLAIDList.AIDListCellRenderer;
 import ontologia.Emprego;
+import java.util.Iterator;
+
 
 public class AeronaveAgente extends Agent {
 	 public static class AeronaveAgenteData {
@@ -52,14 +41,11 @@ public class AeronaveAgente extends Agent {
 }
 	
 	  protected void setup() {
-		 
-				 addBehaviour(new AeronaveComportamento(this, 3000));
-		  this.data.setControlador(buscaServico("Pouso_Comum"));
-		  System.out.println("Aeronave: "+getLocalName()+" Inicializado");
-		  System.out.println("Aeronave: "+getLocalName()+" Olá Controlador  "+data.getControlador() +" Solicito as regras de navegação "
-		  		+ " para controle de aproximação e pouso");
-		  SolicitarRegras(data.getControlador());
 		  
+		  System.out.println(getLocalName()+" entrou no espaÃ§o aÃ©reo de BrasÃ­lia.");
+		  this.data.setControlador(buscaServico("Pouso_Comum"));
+		  SolicitarRegras(data.getControlador());
+		  addBehaviour(new AeronaveComportamento(this, 3000));
 	  }
 	  	  
 	  		
@@ -75,25 +61,25 @@ protected String buscaServico(String tipoServico) {
   		
   		DFAgentDescription[] results = DFService.search(this, template, sc);
   		if (results.length > 0) {
-  			System.out.println("Aeronave: "+getLocalName()+" Encontrou os seguintes tipos de serviços:");
   			for (int i = 0; i < results.length; ++i) {
   				DFAgentDescription dfd = results[i];
   				
   				AID provider = dfd.getName();
   				
   				Iterator it = dfd.getAllServices();
-  				while (it.hasNext()) {
+  			//	while (it.hasNext()) {
   					ServiceDescription sd = (ServiceDescription) it.next();
   					if (sd.getType().equals("Pouso_Comum")) {
-  				//		System.out.println("--Serviço \""+sd.getType());
-  				//		System.out.println("--Controlador:"+ provider.getLocalName());
+  					  System.out.println(getLocalName()+": "+provider.getLocalName() +" solicito vetores de navegaÃ§Ã£o "
+  		  			  		+ "para aproximaÃ§Ã£o e pouso");
   						return  provider.getLocalName();
   				}
-  			}
+  			//}
   		}}
   		else {
-  			System.out.println("Aeronave "+getLocalName()+"não tem agentes disponiveis"
-  					+ " para esse servico, MENDEI! NENDEI!!");
+  			System.out.println(getLocalName()+" nÃ£o encontrou nenhum controlador "
+  					+ "e foi direcionado para outro aeroporto.");
+  			doDelete();
   		}
   	}
   	catch (FIPAException fe) {
@@ -121,18 +107,26 @@ public void SolicitarRegras(String nomeAgente){
 	addBehaviour(new CyclicBehaviour(this){
 		@Override
 		public void action() {
+		try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		ACLMessage msg = myAgent.receive();	
 			if(msg != null) {
-			Aerodromo ardm = new Aerodromo();			
-		String content = "-->"+msg.getContent()+" aqui é a aeronave solcitando recomendações para pouso";
-		System.out.println("-->"+msg.getSender().getLocalName()+" : "+content);
-			
-		}else
-			block();}
+				Aerodromo ardm = new Aerodromo();			
+				String content = msg.getContent();
+				System.out.println(msg.getSender().getLocalName()+": "+content);
+				
+			}else {
+				doDelete();	  
+			}
+		}
 	});	
 }
 
-
+// Put agent clean-up operations here
+	protected void takeDown() {
+		System.out.println(getLocalName()+" encerrou suas atividades em BrasÃ­lia.");
+	}
 }
-
-			
